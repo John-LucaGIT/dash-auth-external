@@ -22,7 +22,7 @@ class DashAuthExternal:
         Returns:
             str: Bearer Access token from your OAuth2 Provider
         """
-        token = flask.request.cookies['access_token']
+        token = flask.request.headers.get(self._token_field_name)
         if token is None:
             raise KeyError(
                 f"Header with name {self._token_field_name} not found in the flask request headers."

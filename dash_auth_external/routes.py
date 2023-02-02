@@ -38,7 +38,7 @@ def make_auth_route(
     external_auth_url: str,
     client_id: str,
     auth_suffix: str,
-    redirect_uri: str, 
+    redirect_uri: str,
     with_pkce: bool = True,
     scope: str = None,
     auth_request_params: dict = None,
@@ -137,35 +137,8 @@ def make_access_token_route(
         response = redirect(_home_suffix)
         response.headers.add(_token_field_name, token)
 
-        set_cookie(
-            response=response,
-            name= _token_field_name,
-            value= token,
-            max_age=None
-        )
         return response
     return app
-
-def set_cookie(response, name, value, max_age,
-                   httponly=True, samesite='Strict'):
-
-        is_http = flask.request.environ.get(
-            'wsgi.url_scheme',
-            flask.request.environ.get('HTTP_X_FORWARDED_PROTO', 'http')
-        ) == 'http'
-
-        ua = user_agent_parser.ParseUserAgent(
-            flask.request.environ.get('HTTP_USER_AGENT', ''))
-
-
-
-        response.set_cookie(
-            name,
-            value=value,
-            max_age=max_age,
-            httponly=httponly,
-            samesite=samesite
-        )
 
 
 def token_request(url: str, body: dict, headers: dict):
