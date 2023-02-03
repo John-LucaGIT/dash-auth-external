@@ -2,6 +2,7 @@ from flask import Flask
 import flask
 from werkzeug.routing import RoutingException, ValidationError
 from .routes import *
+from dash_auth_external import encrypt
 from urllib.parse import urljoin
 import os
 
@@ -16,13 +17,16 @@ class DashAuthExternal:
         """
         return os.urandom(length)
 
-    def get_token(self) -> str:
+    def get_token(self,_token_field_name = "access_token") -> str:
         """Retrieves the access token from flask request headers, using the token cookie given on __init__.
+        Args:
+            _token_field_name (str, optional): The key for the token returned in JSON from the token endpoint. Defaults to "access_token".
 
         Returns:
             str: Bearer Access token from your OAuth2 Provider
         """
-        token = flask.request.headers.get(self._token_field_name)
+        token = session['token_data'][_token_field_name]
+
         if token is None:
             raise KeyError(
                 f"Header with name {self._token_field_name} not found in the flask request headers."
@@ -35,7 +39,7 @@ class DashAuthExternal:
         external_auth_url: str,
         external_token_url: str,
         client_id: str,
-        with_pkce=True,
+        with_pkce: bool = True,
         app_url: str = "http://127.0.0.1:8050",
         redirect_suffix: str = "/redirect",
         auth_suffix: str = "/",
@@ -98,6 +102,7 @@ class DashAuthExternal:
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=redirect_uri,
+            with_pkce=with_pkce,
             redirect_suffix=redirect_suffix,
             _home_suffix=home_suffix,
             token_request_headers=token_request_headers,

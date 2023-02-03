@@ -135,10 +135,9 @@ def make_access_token_route(
             with_pkce=with_pkce,
             client_id=client_id,
             client_secret=client_secret,
-
         )
-        body['access_type'] = 'offline'
 
+        body['access_type'] = 'offline'
 
         response_data = get_token_response_data(
             external_token_url, body, token_request_headers
