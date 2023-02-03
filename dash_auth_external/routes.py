@@ -54,21 +54,32 @@ def make_auth_route(
             redirect_uri=redirect_uri,
             scope=scope
         )
-
         if with_pkce:
             code_challenge, code_verifier = make_code_challenge()
             session["cv"] = code_verifier
-            authorization_url, state = oauth_session.authorization_url(
-                external_auth_url,
-                code_challenge=code_challenge,
-                code_challenge_method="S256",
-                **auth_request_params,
-            )
+            if not auth_request_params:
+                authorization_url, state = oauth_session.authorization_url(
+                    external_auth_url,
+                    code_challenge=code_challenge,
+                    code_challenge_method="S256",
+                )
+            else:
+                authorization_url, state = oauth_session.authorization_url(
+                    external_auth_url,
+                    code_challenge=code_challenge,
+                    code_challenge_method="S256",
+                    **auth_request_params,
+                )
         else:
-            authorization_url, state = oauth_session.authorization_url(
-                external_auth_url,
-                **auth_request_params,
-            )
+            if not auth_request_params:
+                authorization_url, state = oauth_session.authorization_url(
+                    external_auth_url,
+                )
+            else:
+                authorization_url, state = oauth_session.authorization_url(
+                    external_auth_url,
+                    **auth_request_params,
+                )
 
         resp = redirect(authorization_url)
         return resp
