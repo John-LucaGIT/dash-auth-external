@@ -40,6 +40,7 @@ def make_auth_route(
     auth_suffix: str,
     redirect_uri: str,
     with_pkce: bool = True,
+    client_secret: str = None,
     scope: str = None,
     auth_request_params: dict = None,
 ):
@@ -100,7 +101,9 @@ def build_token_body(
         redirect_uri=redirect_uri,
         client_id=client_id,
         state=state,
+        client_secret=client_secret,
     )
+    body['access_type'] = 'offline'
 
     if with_pkce:
 
@@ -131,6 +134,7 @@ def make_access_token_route(
             redirect_uri=redirect_uri,
             with_pkce=with_pkce,
             client_id=client_id,
+            client_secret=client_secret,
 
         )
         body['access_type'] = 'offline'

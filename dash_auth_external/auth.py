@@ -41,6 +41,7 @@ class DashAuthExternal:
         auth_suffix: str = "/",
         home_suffix="/home",
         _token_field_name: str = "access_token",
+        client_secret: str = None,
         _secret_key: str = None,
         auth_request_headers: dict = None,
         token_request_headers: dict = None,
@@ -60,6 +61,7 @@ class DashAuthExternal:
             auth_suffix (str, optional): The route that will trigger the initial redirect to the external OAuth provider. Defaults to "/".
             home_suffix (str, optional): The route your dash application will sit, relative to your url. Defaults to "/home".
             _token_field_name (str, optional): The key for the token returned in JSON from the token endpoint. Defaults to "access_token".
+            client_secret (str, optional): Client secret if enforced by Oauth2 provider. Defaults to None.
             _secret_key (str, optional): Secret key for flask app, normally generated at runtime. Defaults to None.
             auth_request_params (dict, optional): Additional params to send to the authorization endpoint. Defaults to None.
             token_request_headers (dict, optional): Additional headers to send to the access token endpoint. Defaults to None.
@@ -83,6 +85,7 @@ class DashAuthExternal:
             app=app,
             external_auth_url=external_auth_url,
             client_id=client_id,
+            client_secret=client_secret,
             auth_suffix=auth_suffix,
             redirect_uri=redirect_uri,
             with_pkce=with_pkce,
@@ -93,6 +96,7 @@ class DashAuthExternal:
             app,
             external_token_url=external_token_url,
             client_id=client_id,
+            client_secret=client_secret,
             redirect_uri=redirect_uri,
             redirect_suffix=redirect_suffix,
             _home_suffix=home_suffix,
