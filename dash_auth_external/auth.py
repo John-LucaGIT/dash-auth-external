@@ -2,6 +2,7 @@ from flask import Flask
 import flask
 from werkzeug.routing import RoutingException, ValidationError
 from .routes import *
+from dash_auth_external import encrypt
 from urllib.parse import urljoin
 import os
 
@@ -16,13 +17,16 @@ class DashAuthExternal:
         """
         return os.urandom(length)
 
-    def get_token(self) -> str:
+    def get_token(self,_token_field_name = "access_token") -> str:
         """Retrieves the access token from flask request headers, using the token cookie given on __init__.
+        Args:
+            _token_field_name (str, optional): The key for the token returned in JSON from the token endpoint. Defaults to "access_token".
 
         Returns:
             str: Bearer Access token from your OAuth2 Provider
         """
-        token = flask.request.cookies['access_token']
+        token = session['token_data'][_token_field_name]
+
         if token is None:
             raise KeyError(
                 f"Header with name {self._token_field_name} not found in the flask request headers."
@@ -35,7 +39,7 @@ class DashAuthExternal:
         external_auth_url: str,
         external_token_url: str,
         client_id: str,
-        with_pkce=True,
+        with_pkce: bool = True,
         app_url: str = "http://127.0.0.1:8050",
         redirect_suffix: str = "/redirect",
         auth_suffix: str = "/",
@@ -46,6 +50,8 @@ class DashAuthExternal:
         auth_request_headers: dict = None,
         token_request_headers: dict = None,
         scope: str = None,
+        _server_name: str = __name__,
+        _static_folder: str = './assets/'
     ):
         """The interface for obtaining access tokens from 3rd party OAuth2 Providers.
 
@@ -61,14 +67,16 @@ class DashAuthExternal:
             _token_field_name (str, optional): The key for the token returned in JSON from the token endpoint. Defaults to "access_token".
             client_secret (str, optional): Client secret if enforced by Oauth2 provider. Defaults to None.
             _secret_key (str, optional): Secret key for flask app, normally generated at runtime. Defaults to None.
-            auth_request_headers (dict, optional): Additional headers to send to the authorization endpoint. Defaults to None.
+            auth_request_params (dict, optional): Additional params to send to the authorization endpoint. Defaults to None.
             token_request_headers (dict, optional): Additional headers to send to the access token endpoint. Defaults to None.
             scope (str, optional): Header required by most Oauth2 Providers. Defaults to None.
+            _server_name (str, optional): The name of the Flask Server. Defaults to __name__, so the name of this library.
+            _static_folder (str, optional): The folder with static assets. Defaults to "./assets/".
 
         Returns:
            DashAuthExternal: Main package class
         """
-        app = Flask(__name__, instance_relative_config=False)
+        app = Flask(_server_name, instance_relative_config=False, static_folder=_static_folder)
 
         if _secret_key is None:
             app.secret_key = self.generate_secret_key()
@@ -86,7 +94,7 @@ class DashAuthExternal:
             redirect_uri=redirect_uri,
             with_pkce=with_pkce,
             scope=scope,
-            auth_request_headers=auth_request_headers,
+            auth_request_params=auth_request_headers,
         )
         app = make_access_token_route(
             app,
@@ -94,6 +102,7 @@ class DashAuthExternal:
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=redirect_uri,
+            with_pkce=with_pkce,
             redirect_suffix=redirect_suffix,
             _home_suffix=home_suffix,
             token_request_headers=token_request_headers,
