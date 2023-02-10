@@ -27,6 +27,9 @@ class DashAuthExternal:
         """
         token = session['token_data'][_token_field_name]
 
+        # Encrypt Token
+        token = TokenCrypt.encrypt_token(token)
+
         if token is None:
             raise KeyError(
                 f"Header with name {self._token_field_name} not found in the flask request headers."
