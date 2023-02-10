@@ -89,7 +89,7 @@ def make_auth_route(
 
 
 def build_token_body(
-    url: str, redirect_uri: str, client_id: str, with_pkce: bool, client_secret: str
+    url: str, redirect_uri: str, client_id: str, with_pkce: bool, client_secret: str, include_granted_scopes: str, access_type: str
 ):
     query = urllib.parse.urlparse(url).query
     redirect_params = urllib.parse.parse_qs(query)
@@ -102,8 +102,9 @@ def build_token_body(
         client_id=client_id,
         state=state,
         client_secret=client_secret,
+        include_granted_scopes='true',
+        access_type='offline'
     )
-    body['access_type'] = 'offline'
 
     if with_pkce:
 
@@ -122,22 +123,22 @@ def make_access_token_route(
     _token_field_name: str,
     with_pkce: bool = True,
     client_secret: str = None,
-    keycloak_userinfo_url : str = None,
-    refresh_suffix: str = None,
     token_request_headers: dict = None,
 ):
     @app.route(redirect_suffix, methods=["GET", "POST"])
     def get_token():
         url = request.url
+
         body = build_token_body(
             url=url,
             redirect_uri=redirect_uri,
             with_pkce=with_pkce,
             client_id=client_id,
             client_secret=client_secret,
+            include_granted_scopes='true',
+            access_type='offline'
         )
 
-        body['access_type'] = 'offline'
 
         response_data = get_token_response_data(
             external_token_url, body, token_request_headers
