@@ -13,7 +13,7 @@ Do you want to build a Plotly Dash app which pulls user data from external APIs 
 **Dash-auth-external** is distributed via [PyPi](https://pypi.org/project/dash-auth-external/)
 
 ```
-pip install dash-auth-external
+pip install git+https://github.com/John-LucaGIT/dash-auth-external/
 ```
 
 ## Simple Usage
